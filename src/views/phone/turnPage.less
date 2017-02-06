@@ -1,0 +1,24 @@
+.phone-page {
+	height: 486px;
+    width: 320px;
+    overflow: hidden;
+    position: absolute;
+	&.vertical-pre {
+        transform: translateY(-486px);
+	}
+    &.vertical-active {
+        transform: translateY(0px);
+    }
+    &.vertical-next {
+        transform: translateY(486px);
+    }
+    &.horizontal-pre {
+        transform: translateX(-320px);
+    }
+    &.horizontal-active {
+        transform: translateX(0px);
+    }
+    &.horizontal-next {
+        transform: translateX(320px);
+    } 
+}

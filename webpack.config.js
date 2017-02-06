@@ -20,7 +20,7 @@ module.exports = {
     loaders: [
       {test: /\.js$/, include: path.join(__dirname, 'src'), loader: 'babel'},
       {test: /\.css$/, loader: "style!css?sourceMap!postcss"},
-      {test: /\.less$/, loader: "style!css!less|postcss"},
+      {test: /\.less/, loaders: ['style', 'css', 'autoprefixer', 'less']},
       {test: /\.scss$/, loader: "style!css!sass|postcss"}],
   },
   plugins: [

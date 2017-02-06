@@ -21,10 +21,16 @@ const mapDispatchToProps = (
   ownProps
 ) => {
   return {
-    onClick: () => {
+    goPrePage: () => {
       dispatch({
-        type: 'ADD',
+        type: 'GO_PRE_PAGE',
         payload: 1
+      });
+    },
+    goNextPage: () => {
+      dispatch({
+        type: 'GO_NEXT_PAGE',
+        payload: 2
       });
     }
   };
@@ -41,9 +47,16 @@ const defaultState = {
 };
 
 const reducer = (state = defaultState, action) => {
+  let {currentPageIndex} = state;
   switch (action.type) {
-    case 'ADD':
-      return action.payload;
+    case 'GO_PRE_PAGE':
+      return Object.assign({}, state, {
+          currentPageIndex: currentPageIndex === 0 ? currentPageIndex : --currentPageIndex
+        });
+    case 'GO_NEXT_PAGE':
+      return Object.assign({}, state, {
+          currentPageIndex: currentPageIndex === state.scenedata.pages.length - 1 ? currentPageIndex : ++currentPageIndex
+        });
     default: 
       return state;
   }

@@ -12,7 +12,8 @@ class PhonePage extends Component {
     this.pageStyle = {
       height: this.props.data.pageOption.pageSize + 'px',
       width: '320px',
-      /*overflow: 'hidden'*/
+      overflowX: 'hidden',
+      overflowY: 'auto'
     };
   }
 
