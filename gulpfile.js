@@ -31,6 +31,9 @@ gulp.task('dev', ['clean'], function() {
         //target: 'http://localhost:3002/',
         //pathRewrite: {'^/h5/service/' : '/'}
       },*/
+      '/cdn/**/*': {
+        target: 'http://192.168.51.22/'
+      }
     }
   });
   server.listen(8080);

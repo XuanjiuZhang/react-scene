@@ -6,13 +6,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ViewManager from './views/phone/ViewManager';
 import { connect, Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, combineReducers } from 'redux';
+import { viewManagerReducer } from './views/phone/viewManagerRedux';
 import scenedata from './scenedata2';
 
 const mapStateToProps = (state) => {
   return {
     scenedata: state.scenedata,
-    currentPageIndex: state.currentPageIndex
+    currentPageIndex: state.currentPageIndex,
+    viewHeight: state.viewHeight,
+    viewWidth: state.viewWidth
   }
 };
 
@@ -43,11 +46,13 @@ const VisibleViewManager = connect(
 
 const defaultState = {
 	scenedata,
-  currentPageIndex: 0
+  currentPageIndex: 0,
+  viewHeight: 486,
+  viewWidth: 320
 };
 
-const reducer = (state = defaultState, action) => {
-  let {currentPageIndex} = state;
+const pageReducer = (state = defaultState, action) => {
+  let {currentPageIndex, deltaX, deltaY} = state;
   switch (action.type) {
     case 'GO_PRE_PAGE':
       return Object.assign({}, state, {
@@ -62,7 +67,9 @@ const reducer = (state = defaultState, action) => {
   }
 };
 
-let store = createStore(reducer);
+/*const reducer = combineReducers({pageReducer, viewManagerReducer});*/
+
+let store = createStore(pageReducer);
 
 /*const ProviderElement = React.createElement(Provider, {store}, React.createElement(VisibleViewManager));*/
 

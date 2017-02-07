@@ -6363,7 +6363,7 @@ const scenedata = {
             "left": "53px",
             "width": "218px",
             "height": "146px",
-            "text-align": "center",
+            "textAlign": "center",
             "zIndex": 1,
             "opacity": 1,
             "padding": 0,
