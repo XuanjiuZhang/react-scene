@@ -21,15 +21,15 @@ class ViewManager extends Component {
   componentDidMount(){
   }
 
+  /*<div style={{position: 'absolute', left: '320px'}}>
+    <button onClick={this.props.goPrePage}>prePage</button>
+    <button onClick={this.props.goNextPage}>nextPage</button>  
+  </div>*/
 	render() {
 		return (
       <div style={this.wrapStyle}>
         <div className="phone-wrap" style={{width: '100%', height: '100%', overflow: 'hidden', float: 'left'}}>
           <PhoneList {...this.props} />
-        </div>
-        <div style={{position: 'absolute', left: '320px'}}>
-          <button onClick={this.props.goPrePage}>prePage</button>
-          <button onClick={this.props.goNextPage}>nextPage</button>  
         </div>
       </div>
 		);

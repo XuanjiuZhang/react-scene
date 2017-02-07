@@ -15,8 +15,13 @@ gulp.task('clean', function(){
   console.log('clean build folder.');
 });
 
-gulp.task('dev', ['clean'], function() {
-  config.entry.app.unshift("webpack-dev-server/client?http://localhost:8080/", "webpack/hot/only-dev-server");
+gulp.task('copyImage', function(){
+  return gulp.src(['./src/images/**/*'])
+    .pipe(gulp.dest('./build/images/'));
+});
+
+gulp.task('dev', ['clean', 'copyImage'], function() {
+  config.entry.app.unshift("webpack-dev-server/client?http://192.168.1.103:8080/", "webpack/hot/only-dev-server");
   console.log(config);
   var compiler = webpack(config);
   var server = new webpackDevServer(compiler, {
@@ -31,9 +36,6 @@ gulp.task('dev', ['clean'], function() {
         //target: 'http://localhost:3002/',
         //pathRewrite: {'^/h5/service/' : '/'}
       },*/
-      '/cdn/**/*': {
-        target: 'http://192.168.51.22/'
-      }
     }
   });
   server.listen(8080);

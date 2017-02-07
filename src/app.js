@@ -31,6 +31,7 @@ const mapDispatchToProps = (
       });
     },
     goNextPage: () => {
+      console.log('goNextPage');
       dispatch({
         type: 'GO_NEXT_PAGE',
         payload: 2
