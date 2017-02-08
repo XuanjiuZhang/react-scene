@@ -16,7 +16,7 @@ class ImageElement extends Component {
 	render() {
 		return (
       <div className="image-element">
-        <img src="build/images/imageSample3.png" />
+        <img src={this.props.data.properties.src} />
       </div>
 		);
 	}

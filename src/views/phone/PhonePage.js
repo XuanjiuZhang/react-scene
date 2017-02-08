@@ -47,8 +47,6 @@ class PhonePage extends Component {
         this.props.panPage(event);
         break;
       case 'panend':
-        console.log('panend');
-        /*this.props.panPage(event);*/
         if(this.startPositonY === this.minPositionY && deltaY < 0){
           this.props.panPage(event);
         }else if(this.startPositonY === 0 && deltaY > 0){

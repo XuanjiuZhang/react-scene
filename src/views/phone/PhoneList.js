@@ -43,7 +43,7 @@ class PhoneList extends Component {
     const preActivePage = prevProps.scenedata.pages[prevProps.currentPageIndex];
     const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
     if(preActivePage.pageOption.longPage && !activePage.pageOption.longPage){
-      this.HammerManager.add(this.Pan);
+      setTimeout(() => this.HammerManager.add(this.Pan));
     }else if(!preActivePage.pageOption.longPage && activePage.pageOption.longPage){
       this.HammerManager.remove(this.Pan);
     }
@@ -52,7 +52,6 @@ class PhoneList extends Component {
   panPage(event){
     const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
     const {type, deltaX, deltaY, additionalEvent} = event;
-    console.log(deltaY);
     switch (type) {
       case 'panstart':
         this.setState({ inPan: true });
