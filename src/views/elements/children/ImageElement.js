@@ -11,12 +11,13 @@ class ImageElement extends Component {
   }
 
   componentDidMount(){
+    /*<img src={this.props.data.properties.src} />*/
   }
 
 	render() {
 		return (
       <div className="image-element">
-        <img src={this.props.data.properties.src} />
+        <img src="/build/images/imageSample3.png" /> 
       </div>
 		);
 	}

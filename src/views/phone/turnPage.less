@@ -6,22 +6,10 @@
     position: absolute;
     left: 0;
     top: 0;
-	&.vertical-pre {
-        transform: translateY(-486px);
-	}
-    &.vertical-active {
-        transform: translateY(0px);
+	&.animated-page{
+        transition: .5s transform;
     }
-    &.vertical-next {
-        transform: translateY(486px);
-    }
-    &.horizontal-pre {
-        transform: translateX(-320px);
-    }
-    &.horizontal-active {
-        transform: translateX(0px);
-    }
-    &.horizontal-next {
-        transform: translateX(320px);
+    &.animated-page-fast{
+        transition: .2s transform;
     } 
 }

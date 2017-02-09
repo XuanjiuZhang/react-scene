@@ -18,7 +18,6 @@ class PhonePage extends Component {
   }
 
   componentDidMount(){
-    console.log(this.props.data);
     if(this.props.data.pageOption.longPage && this.props.panPage){
       console.log('HammerManager!');
       this.HammerManager = new Hammer.Manager(this.refs.page);
@@ -45,30 +44,31 @@ class PhonePage extends Component {
       case 'panstart':
         this.startPositonY = positionY;
         this.props.panPage(event);
+        this.panStartEvent = event;
         break;
       case 'panend':
-        if(this.startPositonY === this.minPositionY && deltaY < 0){
-          this.props.panPage(event);
-        }else if(this.startPositonY === 0 && deltaY > 0){
+        let shouldPanPage = this.props.data.pageOption.turnPageMode === 2 || (this.startPositonY === this.minPositionY && deltaY < 0)
+         || (this.startPositonY === 0 && deltaY > 0);
+        if(shouldPanPage){
           this.props.panPage(event);
         }else{
           this.setState({positionY: Math.max(Math.min(this.startPositonY + deltaY, 0), this.minPositionY)});
         }
         break;
       case 'panup':
-        if(this.startPositonY === this.minPositionY){
+        if(this.props.data.pageOption.turnPageMode === 2){
+          this.setState({positionY: Math.max(Math.min(this.startPositonY + deltaY, 0), this.minPositionY)});
+        }else if(this.startPositonY === this.minPositionY || (this.startPositonY === 0 && this.panStartEvent.type === 'pandown')){
           let outEvent = Object.assign({}, event);
           this.props.panPage(outEvent);
-        }else{
-          this.setState({positionY: Math.max(this.startPositonY + deltaY, this.minPositionY)});
         }
         break;
       case 'pandown':
-        if(this.startPositonY === 0){
+        if(this.props.data.pageOption.turnPageMode === 2){
+          this.setState({positionY: Math.min(0, Math.max(this.startPositonY + deltaY, this.minPositionY))});
+        }else if(this.startPositonY === 0 || (this.startPositonY === this.minPositionY && this.panStartEvent.type === 'panup')){
           let outEvent = Object.assign({}, event);
           this.props.panPage(outEvent);
-        }else{
-          this.setState({positionY: Math.min(this.startPositonY + deltaY, 0)});
         }
         break;
       case 'panleft':
@@ -92,7 +92,6 @@ class PhonePage extends Component {
       overflow: 'hidden',
       transform: `translateY(${this.state.positionY}px)`
     };
-    console.log(pageStyle);
 		return (
       <div ref="page" className="" style={pageStyle}>
         {

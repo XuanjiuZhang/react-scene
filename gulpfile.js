@@ -15,12 +15,12 @@ gulp.task('clean', function(){
   console.log('clean build folder.');
 });
 
-gulp.task('copyImage', function(){
+gulp.task('copyImage', ['clean'], function(){
   return gulp.src(['./src/images/**/*'])
     .pipe(gulp.dest('./build/images/'));
 });
 
-gulp.task('dev', ['clean', 'copyImage'], function() {
+gulp.task('dev', ['copyImage'], function() {
   config.entry.app.unshift("webpack-dev-server/client?http://192.168.1.103:8080/", "webpack/hot/only-dev-server");
   console.log(config);
   var compiler = webpack(config);
@@ -36,9 +36,6 @@ gulp.task('dev', ['clean', 'copyImage'], function() {
         //target: 'http://localhost:3002/',
         //pathRewrite: {'^/h5/service/' : '/'}
       },*/
-      '/cdn/**/*': {
-        target: 'http://192.168.51.22/'
-      },
     }
   });
   server.listen(8080);

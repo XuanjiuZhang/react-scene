@@ -5,6 +5,7 @@ import React, {
 	Component
 } from 'react';
 import PhonePage from './PhonePage';
+import classNames from 'classnames';
 
 class PhoneList extends Component {
   constructor(props){
@@ -12,10 +13,12 @@ class PhoneList extends Component {
     this.state = {
       deltaX: 0,
       deltaY: 0,
-      inPan: false
+      inPan: false,
+      inTurnPage: false,
+      fastTurnPage: false
     };
+    this.turnPageThreshold = 50;
     this.panPage = this.panPage.bind(this);
-    console.log(props);
   }
 
   componentDidMount(){
@@ -31,7 +34,7 @@ class PhoneList extends Component {
     this.Pan = new Hammer.Pan({
         event: 'pan',
         pointers: 0,
-        threshold: 6,
+        threshold: 20,
         direction: Hammer.DIRECTION_ALL
       });
     if(!activePage.pageOption.longPage){
@@ -50,6 +53,9 @@ class PhoneList extends Component {
   }
 
   panPage(event){
+    if(this.state.inTurnPage || this.state.fastTurnPage){
+      return false;
+    }
     const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
     const {type, deltaX, deltaY, additionalEvent} = event;
     switch (type) {
@@ -57,53 +63,79 @@ class PhoneList extends Component {
         this.setState({ inPan: true });
         break;
       case 'panend':
-        this.setState({ inPan: false });
+        /*this.setState({ inPan: false });*/
+        console.log(event);
         if(activePage.pageOption.turnPageMode === 1){
           // 第一页继续往下滑
           if(this.props.currentPageIndex === 0 && (additionalEvent === 'pandown' || deltaY > 0)){
-            this.setState({ deltaY: 0 });
+            this.setState({ deltaY: 0, fastTurnPage: true });
+            setTimeout(() => {
+              this.setState({ fastTurnPage: false, inPan: false });
+            }, 200);
             return;
           }
           // 最后一页往上滑
           if(this.props.currentPageIndex === this.props.scenedata.pages.length - 1
            && (additionalEvent === 'panup' || deltaY < 0)){
-            this.setState({ deltaY: 0 });
+            this.setState({ deltaY: 0, fastTurnPage: true });
+            setTimeout(() => {
+              this.setState({ fastTurnPage: false, inPan: false });
+            }, 200);
             return;
           }
           // 往下滑翻页
           if(additionalEvent === 'panup' || deltaY < 0){
-            this.props.goNextPage();
-            this.setState({ deltaY: 0 });
+            /*this.props.goNextPage();*/
+            this.setState({ deltaY: -this.props.viewHeight, inTurnPage: true });
+            setTimeout(() => {
+              this.props.goNextPage();
+              this.setState({ deltaY: 0, inTurnPage: false, inPan: false });
+            }, 500);
             return;
           }
           // 往上滑翻页
           if(additionalEvent === 'pandown' || deltaY > 0){
-            this.props.goPrePage();
-            this.setState({ deltaY: 0 });
+            this.setState({ deltaY: this.props.viewHeight, inTurnPage: true });
+            setTimeout(() => {
+              this.props.goPrePage();
+              this.setState({ deltaY: 0, inTurnPage: false, inPan: false });
+            }, 500);
             return;
           }
         }else{
           // 第一页继续往右滑
           if(this.props.currentPageIndex === 0 && (additionalEvent === 'panright' || deltaX > 0)){
-            this.setState({ deltaX: 0 });
+            this.setState({ deltaX: 0, fastTurnPage: true });
+            setTimeout(() => {
+              this.setState({ fastTurnPage: false, inPan: false });
+            }, 200);
             return;
           }
           // 最后一页往左滑
           if(this.props.currentPageIndex === this.props.scenedata.pages.length - 1
            && (additionalEvent === 'panleft' || deltaX < 0)){
-            this.setState({ deltaX: 0 });
+            this.setState({ deltaX: 0, fastTurnPage: true });
+            setTimeout(() => {
+              this.setState({ fastTurnPage: false, inPan: false });
+            }, 200);
             return;
           }
           // 往左滑翻页
           if(additionalEvent === 'panleft' || deltaX < 0){
-            this.props.goNextPage();
-            this.setState({ deltaX: 0 });
+            this.setState({ deltaX: -this.props.viewWidth, inTurnPage: true });
+            setTimeout(() => {
+              this.props.goNextPage();
+              this.setState({ deltaX: 0, inTurnPage: false, inPan: false });
+            }, 500);
             return;
           }
           // 往右滑翻页
           if(additionalEvent === 'panright' || deltaX > 0){
-            this.props.goPrePage();
-            this.setState({ deltaX: 0 });
+            this.setState({ deltaX: this.props.viewWidth, inTurnPage: true });
+            setTimeout(() => {
+              this.props.goNextPage(); 
+              this.setState({ deltaX: 0, inTurnPage: false, inPan: false });
+            }, 500);
             return;
           }
         }
@@ -134,7 +166,6 @@ class PhoneList extends Component {
   }
 
 	render() {
-    console.log(this.props.currentPageIndex);
     const prePage = this.props.currentPageIndex === 0 ? {id: 'min', pageOption: {pageSize: 486, turnPageMode: 1}, elements: []}
      : this.props.scenedata.pages[this.props.currentPageIndex - 1];
     const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
@@ -157,15 +188,21 @@ class PhoneList extends Component {
       display: this.state.inPan ? '' : 'none'
     };
 
+    const animated = classNames({
+      'phone-page': true,
+      'animated-page': this.state.inTurnPage,
+      'animated-page-fast': this.state.fastTurnPage
+    });
+
 		return (
       <ul style={{width: '100%', height: '100%'}}>
-        <li className="phone-page" style={prePageStyle}>
+        <li className={animated} style={prePageStyle}>
           <PhonePage key={prePage.id} data={prePage} />
         </li>
-        <li ref="list" className="phone-page" style={activePageStyle}>
+        <li ref="list" className={animated} style={activePageStyle}>
           <PhonePage key={activePage.id} data={activePage} panPage={this.panPage}/>
         </li>
-        <li className="phone-page" style={nextPageStyle}>
+        <li className={animated} style={nextPageStyle}>
           <PhonePage key={nextPage.id} data={nextPage} />
         </li>
       </ul>
