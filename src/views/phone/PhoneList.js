@@ -22,7 +22,6 @@ class PhoneList extends Component {
   }
 
   componentDidMount(){
-    console.log('componentDidMount');
     const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
     this.HammerManager = new Hammer.Manager(this.refs.list);
     this.HammerManager.on('panstart', this.panPage);
@@ -34,7 +33,7 @@ class PhoneList extends Component {
     this.Pan = new Hammer.Pan({
         event: 'pan',
         pointers: 0,
-        threshold: 20,
+        threshold: 15,
         direction: Hammer.DIRECTION_ALL
       });
     if(!activePage.pageOption.longPage){
@@ -43,12 +42,8 @@ class PhoneList extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    const preActivePage = prevProps.scenedata.pages[prevProps.currentPageIndex];
-    const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
-    if(preActivePage.pageOption.longPage && !activePage.pageOption.longPage){
-      setTimeout(() => this.HammerManager.add(this.Pan));
-    }else if(!preActivePage.pageOption.longPage && activePage.pageOption.longPage){
-      this.HammerManager.remove(this.Pan);
+    if(prevProps.currentPageIndex != this.props.currentPageIndex){
+      setTimeout(() => this.HammerManager.add(this.Pan), 200);
     }
   }
 
@@ -58,34 +53,33 @@ class PhoneList extends Component {
     }
     const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
     const {type, deltaX, deltaY, additionalEvent} = event;
+
     switch (type) {
       case 'panstart':
         this.setState({ inPan: true });
         break;
       case 'panend':
-        /*this.setState({ inPan: false });*/
-        console.log(event);
         if(activePage.pageOption.turnPageMode === 1){
           // 第一页继续往下滑
-          if(this.props.currentPageIndex === 0 && (additionalEvent === 'pandown' || deltaY > 0)){
-            this.setState({ deltaY: 0, fastTurnPage: true });
-            setTimeout(() => {
-              this.setState({ fastTurnPage: false, inPan: false });
-            }, 200);
-            return;
-          }
+          let firstPageDown = this.props.currentPageIndex === 0 && (additionalEvent === 'pandown' || deltaY > 0);
           // 最后一页往上滑
-          if(this.props.currentPageIndex === this.props.scenedata.pages.length - 1
-           && (additionalEvent === 'panup' || deltaY < 0)){
+          let lastPageUp = this.props.currentPageIndex === this.props.scenedata.pages.length - 1
+           && (additionalEvent === 'panup' || deltaY < 0);
+          // 距离太小
+          let tooNear = Math.abs(deltaY) <= 40;
+
+          if(firstPageDown || lastPageUp || tooNear){
             this.setState({ deltaY: 0, fastTurnPage: true });
             setTimeout(() => {
               this.setState({ fastTurnPage: false, inPan: false });
             }, 200);
             return;
           }
+
           // 往下滑翻页
           if(additionalEvent === 'panup' || deltaY < 0){
             /*this.props.goNextPage();*/
+            this.HammerManager.remove(this.Pan);
             this.setState({ deltaY: -this.props.viewHeight, inTurnPage: true });
             setTimeout(() => {
               this.props.goNextPage();
@@ -95,6 +89,7 @@ class PhoneList extends Component {
           }
           // 往上滑翻页
           if(additionalEvent === 'pandown' || deltaY > 0){
+            this.HammerManager.remove(this.Pan);
             this.setState({ deltaY: this.props.viewHeight, inTurnPage: true });
             setTimeout(() => {
               this.props.goPrePage();
@@ -104,24 +99,24 @@ class PhoneList extends Component {
           }
         }else{
           // 第一页继续往右滑
-          if(this.props.currentPageIndex === 0 && (additionalEvent === 'panright' || deltaX > 0)){
-            this.setState({ deltaX: 0, fastTurnPage: true });
-            setTimeout(() => {
-              this.setState({ fastTurnPage: false, inPan: false });
-            }, 200);
-            return;
-          }
+          let firstPageRight = this.props.currentPageIndex === 0 && (additionalEvent === 'panright' || deltaX > 0);
           // 最后一页往左滑
-          if(this.props.currentPageIndex === this.props.scenedata.pages.length - 1
-           && (additionalEvent === 'panleft' || deltaX < 0)){
+          let lastPageLeft = this.props.currentPageIndex === this.props.scenedata.pages.length - 1
+           && (additionalEvent === 'panleft' || deltaX < 0);
+          // 距离太小
+          let tooNear = Math.abs(deltaX) <= 40;
+
+          if(firstPageRight || lastPageLeft || tooNear){
             this.setState({ deltaX: 0, fastTurnPage: true });
             setTimeout(() => {
               this.setState({ fastTurnPage: false, inPan: false });
             }, 200);
             return;
           }
+          
           // 往左滑翻页
           if(additionalEvent === 'panleft' || deltaX < 0){
+            this.HammerManager.remove(this.Pan);
             this.setState({ deltaX: -this.props.viewWidth, inTurnPage: true });
             setTimeout(() => {
               this.props.goNextPage();
@@ -131,6 +126,7 @@ class PhoneList extends Component {
           }
           // 往右滑翻页
           if(additionalEvent === 'panright' || deltaX > 0){
+            this.HammerManager.remove(this.Pan);
             this.setState({ deltaX: this.props.viewWidth, inTurnPage: true });
             setTimeout(() => {
               this.props.goNextPage(); 

@@ -1,5 +1,4 @@
 
-
 const viewManagerReducer = (state = {}, action) => {
   let {currentPageIndex} = state;
   switch (action.type) {

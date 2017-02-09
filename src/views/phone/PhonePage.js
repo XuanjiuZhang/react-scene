@@ -17,9 +17,14 @@ class PhonePage extends Component {
     this.minPositionY = -(this.props.data.pageOption.pageSize - 486);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    let positionChanged = this.state.positionY != nextState.positionY;
+    let shouldComponentUpdate = positionChanged;
+    return shouldComponentUpdate;
+  }
+
   componentDidMount(){
     if(this.props.data.pageOption.longPage && this.props.panPage){
-      console.log('HammerManager!');
       this.HammerManager = new Hammer.Manager(this.refs.page);
       const Pan = new Hammer.Pan({
         event: 'pan',
@@ -86,8 +91,6 @@ class PhonePage extends Component {
     const pageStyle = {
       height: this.props.data.pageOption.pageSize + 'px',
       width: '100%',
-      /*overflowX: 'hidden',
-      overflowY: 'auto',*/
       position: 'relative',
       overflow: 'hidden',
       transform: `translateY(${this.state.positionY}px)`

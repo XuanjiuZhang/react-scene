@@ -14,7 +14,8 @@ class ViewManager extends Component {
     super(props);
     this.wrapStyle = {
       height: this.props.viewHeight + 'px',
-      width: this.props.viewWidth + 'px'
+      width: this.props.viewWidth + 'px',
+      overflow: 'hidden'
     };
   }
 
@@ -28,7 +29,7 @@ class ViewManager extends Component {
 	render() {
 		return (
       <div style={this.wrapStyle}>
-        <div className="phone-wrap" style={{width: '100%', height: '100%', overflow: 'hidden', float: 'left'}}>
+        <div className="phone-wrap" style={{width: '100%', height: '100%', float: 'left'}}>
           <PhoneList {...this.props} />
         </div>
       </div>

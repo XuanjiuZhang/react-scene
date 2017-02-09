@@ -21,7 +21,7 @@ class Element extends Component {
         ele = <div>this is type 1 element {this.props.data.type.id}</div>;
         break;
       case 2:
-        ele = <ImageElement data={this.props.data} />;
+        ele = <ImageElement key={this.props.data.id} data={this.props.data} />;
         break;
       case 3:
         ele = <div>this is type 3 element {this.props.data.type.id}</div>;
