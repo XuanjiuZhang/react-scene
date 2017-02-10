@@ -13,11 +13,10 @@ class PhoneList extends Component {
     this.state = {
       deltaX: 0,
       deltaY: 0,
-      inPan: false,
       inTurnPage: false,
       fastTurnPage: false
     };
-    this.turnPageThreshold = 50;
+    this.inPan = false;
     this.panPage = this.panPage.bind(this);
   }
 
@@ -43,22 +42,21 @@ class PhoneList extends Component {
 
   componentDidUpdate(prevProps, prevState){
     if(prevProps.currentPageIndex != this.props.currentPageIndex){
-      setTimeout(() => this.HammerManager.add(this.Pan), 200);
+      setTimeout(() => {
+        this.HammerManager.add(this.Pan);
+      });
     }
   }
 
   panPage(event){
-    if(this.state.inTurnPage || this.state.fastTurnPage){
-      return false;
-    }
     const activePage = this.props.scenedata.pages[this.props.currentPageIndex];
     const {type, deltaX, deltaY, additionalEvent} = event;
-
+    this.inPan = true;
     switch (type) {
       case 'panstart':
-        this.setState({ inPan: true });
         break;
       case 'panend':
+        this.HammerManager.remove(this.Pan);
         if(activePage.pageOption.turnPageMode === 1){
           // 第一页继续往下滑
           let firstPageDown = this.props.currentPageIndex === 0 && (additionalEvent === 'pandown' || deltaY > 0);
@@ -71,32 +69,34 @@ class PhoneList extends Component {
           if(firstPageDown || lastPageUp || tooNear){
             this.setState({ deltaY: 0, fastTurnPage: true });
             setTimeout(() => {
-              this.setState({ fastTurnPage: false, inPan: false });
+              this.inPan = false;
+              this.setState({ fastTurnPage: false });
+              this.HammerManager.add(this.Pan);
             }, 200);
             return;
           }
 
           // 往下滑翻页
           if(additionalEvent === 'panup' || deltaY < 0){
-            /*this.props.goNextPage();*/
-            this.HammerManager.remove(this.Pan);
             this.setState({ deltaY: -this.props.viewHeight, inTurnPage: true });
             setTimeout(() => {
+              this.inPan = false;
               this.props.goNextPage();
-              this.setState({ deltaY: 0, inTurnPage: false, inPan: false });
+              this.setState({ deltaY: 0, inTurnPage: false });
             }, 500);
             return;
           }
           // 往上滑翻页
           if(additionalEvent === 'pandown' || deltaY > 0){
-            this.HammerManager.remove(this.Pan);
             this.setState({ deltaY: this.props.viewHeight, inTurnPage: true });
             setTimeout(() => {
+              this.inPan = false;
               this.props.goPrePage();
-              this.setState({ deltaY: 0, inTurnPage: false, inPan: false });
+              this.setState({ deltaY: 0, inTurnPage: false });
             }, 500);
             return;
           }
+
         }else{
           // 第一页继续往右滑
           let firstPageRight = this.props.currentPageIndex === 0 && (additionalEvent === 'panright' || deltaX > 0);
@@ -107,9 +107,12 @@ class PhoneList extends Component {
           let tooNear = Math.abs(deltaX) <= 40;
 
           if(firstPageRight || lastPageLeft || tooNear){
+            this.HammerManager.remove(this.Pan);
             this.setState({ deltaX: 0, fastTurnPage: true });
             setTimeout(() => {
-              this.setState({ fastTurnPage: false, inPan: false });
+              this.inPan = false;
+              this.setState({ fastTurnPage: false });
+              this.HammerManager.add(this.Pan);
             }, 200);
             return;
           }
@@ -119,8 +122,9 @@ class PhoneList extends Component {
             this.HammerManager.remove(this.Pan);
             this.setState({ deltaX: -this.props.viewWidth, inTurnPage: true });
             setTimeout(() => {
+              this.inPan = false;
               this.props.goNextPage();
-              this.setState({ deltaX: 0, inTurnPage: false, inPan: false });
+              this.setState({ deltaX: 0, inTurnPage: false });
             }, 500);
             return;
           }
@@ -129,8 +133,9 @@ class PhoneList extends Component {
             this.HammerManager.remove(this.Pan);
             this.setState({ deltaX: this.props.viewWidth, inTurnPage: true });
             setTimeout(() => {
+              this.inPan = false;
               this.props.goNextPage(); 
-              this.setState({ deltaX: 0, inTurnPage: false, inPan: false });
+              this.setState({ deltaX: 0, inTurnPage: false });
             }, 500);
             return;
           }
@@ -172,7 +177,7 @@ class PhoneList extends Component {
     const prePageStyle = {
       transform: activePage.pageOption.turnPageMode === 1 ? `translateY(-${this.props.viewHeight - this.state.deltaY}px)`
        : `translateX(-${this.props.viewWidth - this.state.deltaX}px)`,
-      display: this.state.inPan ? '' : 'none'
+      display: this.inPan ? '' : 'none'
     };
     const activePageStyle = {
       transform: activePage.pageOption.turnPageMode === 1 ? `translateY(${this.state.deltaY}px)`
@@ -181,7 +186,7 @@ class PhoneList extends Component {
     const nextPageStyle = {
       transform: activePage.pageOption.turnPageMode === 1 ? `translateY(${this.props.viewHeight + this.state.deltaY}px)`
        : `translateX(${this.props.viewWidth + this.state.deltaX}px)`,
-      display: this.state.inPan ? '' : 'none'
+      display: this.inPan ? '' : 'none'
     };
 
     const animated = classNames({
@@ -190,8 +195,8 @@ class PhoneList extends Component {
       'animated-page-fast': this.state.fastTurnPage
     });
 
-		return (
-      <ul style={{width: '100%', height: '100%'}}>
+    const pageArray = this.props.scenedata.pages;
+    /*<ul style={{width: '100%', height: '100%'}}>
         <li className={animated} style={prePageStyle}>
           <PhonePage key={prePage.id} data={prePage} />
         </li>
@@ -201,6 +206,36 @@ class PhoneList extends Component {
         <li className={animated} style={nextPageStyle}>
           <PhonePage key={nextPage.id} data={nextPage} />
         </li>
+      </ul>*/
+
+		return (
+      <ul ref="list" style={{width: '100%', height: '100%'}}>
+        {
+          pageArray.map((page, index) => {
+            switch (index) {
+              case this.props.currentPageIndex - 1:
+                  return <li key={page.id}  className={animated} style={prePageStyle}>
+                          <PhonePage data={page} panPage={this.panPage} active={false} />
+                        </li>;
+                break;
+              case this.props.currentPageIndex:
+                return <li key={page.id} className={animated} style={activePageStyle}>
+                          <PhonePage data={page} panPage={this.panPage} active={true} />
+                        </li>;
+                break;
+              case this.props.currentPageIndex + 1:
+                return <li key={page.id} className={animated} style={nextPageStyle}>
+                          <PhonePage data={page} panPage={this.panPage} active={false} />
+                        </li>;
+                break;
+              default:
+                return <li key={page.id} className={animated} style={{display: 'none'}}>
+                          <PhonePage data={page} panPage={this.panPage} active={false} />
+                        </li>;
+                break;
+            }
+          })
+        }
       </ul>
 		);
 	}

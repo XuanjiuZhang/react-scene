@@ -23,22 +23,34 @@ class PhonePage extends Component {
     return shouldComponentUpdate;
   }
 
+  componentWillReceiveProps(nextProps) {
+    if(!this.props.data.pageOption.longPage){
+      return false;
+    }
+    if(this.props.active && !nextProps.active) {
+      this.HammerManager.remove(this.Pan);
+    }
+    if(!this.props.active && nextProps.active){
+      this.HammerManager.add(this.Pan);
+    }
+  }
+
   componentDidMount(){
-    if(this.props.data.pageOption.longPage && this.props.panPage){
-      this.HammerManager = new Hammer.Manager(this.refs.page);
-      const Pan = new Hammer.Pan({
+    this.HammerManager = new Hammer.Manager(this.refs.page);
+    this.Pan = new Hammer.Pan({
         event: 'pan',
         pointers: 0,
         threshold: 6,
         direction: Hammer.DIRECTION_ALL
       });
-      this.HammerManager.add(Pan);
-      this.HammerManager.on('panstart', this.panPage);
-      this.HammerManager.on('panend', this.panPage);
-      this.HammerManager.on('panup', this.panPage);
-      this.HammerManager.on('pandown', this.panPage);
-      this.HammerManager.on('panleft', this.panPage);
-      this.HammerManager.on('panright', this.panPage);
+    this.HammerManager.on('panstart', this.panPage);
+    this.HammerManager.on('panend', this.panPage);
+    this.HammerManager.on('panup', this.panPage);
+    this.HammerManager.on('pandown', this.panPage);
+    this.HammerManager.on('panleft', this.panPage);
+    this.HammerManager.on('panright', this.panPage);
+    if(this.props.data.pageOption.longPage && this.props.active){
+      this.HammerManager.add(this.Pan);
     }
   }
 
